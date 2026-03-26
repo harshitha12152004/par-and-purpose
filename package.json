@@ -1,0 +1,28 @@
+{
+  "name": "par-and-purpose-api",
+  "version": "1.0.0",
+  "description": "Golf Charity Subscription Platform — Backend API",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev":   "node --watch server.js",
+    "start": "node server.js",
+    "lint":  "eslint server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "cors":                  "^2.8.5",
+    "dotenv":                "^16.4.5",
+    "express":               "^4.19.2",
+    "express-rate-limit":    "^7.2.0",
+    "helmet":                "^7.1.0",
+    "nodemailer":            "^6.9.13",
+    "stripe":                "^15.7.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

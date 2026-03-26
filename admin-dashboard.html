@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Par & Purpose — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:       #0A0C0F;
+    --surface:  #111318;
+    --surface2: #181C22;
+    --border:   rgba(255,255,255,0.07);
+    --text:     #E8EAF0;
+    --muted:    rgba(232,234,240,0.4);
+    --green:    #3DDC84;
+    --green-dim:#1A4A35;
+    --gold:     #F0C040;
+    --gold-dim: #3A2E0A;
+    --red:      #FF5C5C;
+    --red-dim:  #3A1010;
+    --blue:     #5C9FFF;
+    --blue-dim: #0D1E3A;
+    --radius:   14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    height: 100vh;
+    position: sticky; top: 0;
+  }
+  .sidebar-logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .logo-text span { color: var(--green); }
+  .logo-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .nav-section { padding: 20px 12px 8px; }
+  .nav-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 12px;
+    margin-bottom: 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(61,220,132,0.1); color: var(--green); }
+  .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-size: 0.6rem;
+    font-family: 'DM Mono', monospace;
+    padding: 2px 6px;
+    border-radius: 100px;
+    font-weight: 700;
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .admin-profile {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface2);
+  }
+  .admin-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-dim), var(--green));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: var(--bg);
+  }
+  .admin-name { font-size: 0.82rem; font-weight: 600; }
+  .admin-role { font-size: 0.7rem; color: var(--muted); }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,12,15,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .topbar-btn:hover { border-color: var(--green); color: var(--green); }
+  .topbar-btn.primary { background: var(--green); color: var(--bg); border-color: var(--green); font-weight: 600; }
+  .topbar-btn.primary:hover { background: #2ec670; }
+
+  /* ── CONTENT PANELS ── */
+  .panel { display: none; padding: 32px; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  /* ── CARDS ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(255,255,255,0.15); }
+  .stat-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .stat-card-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .stat-card-num.green { color: var(--green); }
+  .stat-card-num.gold  { color: var(--gold); }
+  .stat-card-num.blue  { color: var(--blue); }
+  .stat-card-num.red   { color: var(--red); }
+  .stat-card-sub { font-size: 0.75rem; color: var(--muted); margin-top: 5px; }
+  .stat-card-trend { font-size: 0.72rem; margin-top: 4px; }
+  .trend-up   { color: var(--green); }
+  .trend-down { color: var(--red); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  .card-action {
+    font-size: 0.75rem;
+    color: var(--green);
+    cursor: pointer;
+    background: none; border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.2s;
+  }
+  .card-action:hover { opacity: 0.7; }
+  .card-body { padding: 20px 22px; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 12px 14px; color: var(--text); vertical-align: middle; }
+  .td-mono { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--muted); }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .badge-green  { background: var(--green-dim); color: var(--green); }
+  .badge-gold   { background: var(--gold-dim);  color: var(--gold); }
+  .badge-red    { background: var(--red-dim);   color: var(--red); }
+  .badge-blue   { background: var(--blue-dim);  color: var(--blue); }
+  .badge-muted  { background: rgba(255,255,255,0.07); color: var(--muted); }
+  .badge::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  /* ── ACTION BUTTONS ── */
+  .action-btn {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .action-btn.approve { background: var(--green-dim); color: var(--green); }
+  .action-btn.approve:hover { background: var(--green); color: var(--bg); }
+  .action-btn.reject  { background: var(--red-dim);   color: var(--red); }
+  .action-btn.reject:hover  { background: var(--red);   color: white; }
+  .action-btn.edit    { background: var(--surface2);  color: var(--muted); border: 1px solid var(--border); }
+  .action-btn.edit:hover    { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .action-btn.pay     { background: var(--gold-dim);  color: var(--gold); }
+  .action-btn.pay:hover     { background: var(--gold);   color: var(--bg); }
+
+  /* ── DRAW PANEL ── */
+  .draw-config {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .config-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .config-block-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .radio-group { display: flex; flex-direction: column; gap: 8px; }
+  .radio-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.84rem;
+  }
+  .radio-option.selected { border-color: var(--green); background: rgba(61,220,132,0.06); color: var(--green); }
+  .radio-option input { display: none; }
+  .radio-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .radio-option.selected .radio-dot::after { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); }
+
+  .draw-balls-row { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+  .admin-ball {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    transition: all 0.4s;
+  }
+  .admin-ball.lit {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 20px rgba(240,192,64,0.3);
+  }
+  .sim-log {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    height: 120px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+  .sim-log .log-line { color: var(--green); }
+  .sim-log .log-warn { color: var(--gold); }
+
+  /* ── CHARITY MANAGEMENT ── */
+  .charity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .charity-admin-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .charity-admin-card:hover { border-color: rgba(255,255,255,0.15); }
+  .charity-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .charity-emoji { font-size: 2rem; }
+  .charity-status-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+  }
+  .charity-admin-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .charity-admin-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+  .charity-admin-meta { display: flex; justify-content: space-between; font-size: 0.74rem; margin-bottom: 14px; }
+  .charity-admin-meta .key { color: var(--muted); }
+  .charity-admin-meta .val { font-weight: 600; }
+  .charity-card-actions { display: flex; gap: 8px; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-row { margin-bottom: 14px; }
+  .form-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--green); }
+  .form-select { appearance: none; cursor: pointer; }
+
+  /* ── ANALYTICS BARS ── */
+  .analytics-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 0.82rem; }
+  .analytics-bar-label { width: 90px; color: var(--muted); flex-shrink: 0; }
+  .analytics-bar-track { flex: 1; height: 8px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .analytics-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+  .analytics-bar-val { width: 48px; text-align: right; font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+
+  /* ── MINI CHART (CSS only) ── */
+  .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 40px; }
+  .spark-bar {
+    flex: 1; border-radius: 3px 3px 0 0;
+    background: var(--green);
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .spark-bar:hover { opacity: 1; }
+
+  /* ── WINNER VERIFY ── */
+  .verify-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 20px;
+    transition: border-color 0.2s;
+  }
+  .verify-card:hover { border-color: rgba(255,255,255,0.12); }
+  .verify-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a2a4a, #2a4a8a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .verify-info { flex: 1; }
+  .verify-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 3px; }
+  .verify-meta { font-size: 0.76rem; color: var(--muted); }
+  .verify-scores { display: flex; gap: 5px; margin-top: 6px; }
+  .verify-score-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+  }
+  .verify-score-pill.match { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+  .verify-prize { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--gold); margin-right: 16px; }
+  .verify-actions { display: flex; flex-direction: column; gap: 6px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  @media (max-width: 1100px) {
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .charity-grid { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Par &amp; <span>Purpose</span></div>
+    <div class="logo-badge">ADMIN PANEL · v1.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Overview</div>
+    <button class="nav-item active" onclick="showPanel('dashboard',this)">
+      <span class="icon">◈</span> Dashboard
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Management</div>
+    <button class="nav-item" onclick="showPanel('users',this)">
+      <span class="icon">👤</span> Users
+    </button>
+    <button class="nav-item" onclick="showPanel('subscriptions',this)">
+      <span class="icon">💳</span> Subscriptions
+    </button>
+    <button class="nav-item" onclick="showPanel('scores',this)">
+      <span class="icon">⛳</span> Score Management
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Draw System</div>
+    <button class="nav-item" onclick="showPanel('draw',this)">
+      <span class="icon">🎲</span> Draw Engine
+    </button>
+    <button class="nav-item" onclick="showPanel('winners',this)">
+      <span class="icon">🏆</span> Winners
+      <span class="badge">3</span>
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Platform</div>
+    <button class="nav-item" onclick="showPanel('charities',this)">
+      <span class="icon">🌿</span> Charities
+    </button>
+    <button class="nav-item" onclick="showPanel('analytics',this)">
+      <span class="icon">📊</span> Analytics
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="admin-profile">
+      <div class="admin-avatar">SA</div>
+      <div>
+        <div class="admin-name">Super Admin</div>
+        <div class="admin-role">admin@parpose.co</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ── DASHBOARD ── -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="topbar">
+      <div class="page-title">Dashboard Overview</div>
+      <div class="topbar-right">
+        <button class="topbar-btn">⟳ Refresh</button>
+        <button class="topbar-btn primary" onclick="showPanel('draw', document.querySelector('.nav-item:nth-child(1)'))">Run Draw</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-label">Total Subscribers</div>
+          <div class="stat-card-num blue">2,418</div>
+          <div class="stat-card-trend trend-up">↑ +142 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Prize Pool (Mar)</div>
+          <div class="stat-card-num gold">£12,840</div>
+          <div class="stat-card-sub">Jackpot: £5,136</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Charity Raised</div>
+          <div class="stat-card-num green">£48,220</div>
+          <div class="stat-card-trend trend-up">↑ +£3,200 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Pending Verification</div>
+          <div class="stat-card-num red">3</div>
+          <div class="stat-card-sub">Winners awaiting review</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Subscribers</div>
+            <button class="card-action" onclick="showPanel('users',null)">View All →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Name</th><th>Plan</th><th>Status</th><th>Joined</th>
+              </tr></thead>
+              <tbody>
+                <tr><td>James Whitfield</td><td class="td-mono">YEARLY</td><td><span class="badge badge-green">Active</span></td><td class="td-mono">Mar 22</td></tr>
+                <tr><td>Priya Sharma</td><td class="td-mono">MONTHLY</td><td><span class="badge badge-green">Active</span></td><td class="td-mono">Mar 21</td></tr>
+                <tr><td>Conor MacLeod</td><td class="td-mono">YEARLY</td><td><span class="badge badge-green">Active</span></td><td class="td-mono">Mar 20</td></tr>
+                <tr><td>Helen Forsyth</td><td class="td-mono">MONTHLY</td><td><span class="badge badge-muted">Lapsed</span></td><td class="td-mono">Mar 18</td></tr>
+                <tr><td>Raj Patel</td><td class="td-mono">MONTHLY</td><td><span class="badge badge-green">Active</span></td><td class="td-mono">Mar 17</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Monthly Revenue</div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">Last 8 months</div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;align-items:flex-end;gap:6px;height:100px;margin-bottom:10px;">
+              <div style="flex:1;background:var(--green);opacity:0.4;border-radius:4px 4px 0 0;height:55%;"></div>
+              <div style="flex:1;background:var(--green);opacity:0.5;border-radius:4px 4px 0 0;height:62%;"></div>
+              <div style="flex:1;background:var(--green);opacity:0.5;border-radius:4px 4px 0 0;height:70%;"></div>
+              <div style="flex:1;background:var(--green);opacity:0.6;border-radius:4px 4px 0 0;height:65%;"></div>
+              <div style="flex:1;background:var(--green);opacity:0.65;border-radius:4px 4px 0 0;height:78%;"></div>
+              <div style="flex:1;background:var(--green);opacity:0.7;border-radius:4px 4px 0 0;height:82%;"></div>
+              <div style="flex:1;background:var(--green);opacity:0.8;border-radius:4px 4px 0 0;height:90%;"></div>
+              <div style="flex:1;background:var(--green);border-radius:4px 4px 0 0;height:100%;box-shadow:0 0 16px rgba(61,220,132,0.4);"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);">
+              <span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span style="color:var(--green)">Mar</span>
+            </div>
+            <div style="margin-top:14px;font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--green)">£21,762 <span style="font-size:0.75rem;font-weight:400;color:var(--muted);font-family:'DM Sans',sans-serif">this month</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Draw History</div>
+          <button class="card-action" onclick="showPanel('draw',null)">Manage →</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Month</th><th>Numbers Drawn</th><th>5-Match</th><th>4-Match</th><th>3-Match</th><th>Jackpot</th><th>Status</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td class="td-mono">Mar 2026</td>
+                <td><div style="display:flex;gap:4px;">
+                  <span style="background:var(--gold-dim);color:var(--gold);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;">36</span>
+                  <span style="background:var(--gold-dim);color:var(--gold);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;">12</span>
+                  <span style="background:var(--gold-dim);color:var(--gold);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;">29</span>
+                  <span style="background:var(--gold-dim);color:var(--gold);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;">41</span>
+                  <span style="background:var(--gold-dim);color:var(--gold);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;">08</span>
+                </div></td>
+                <td class="td-mono">0</td><td class="td-mono">2</td><td class="td-mono">14</td>
+                <td style="color:var(--gold);font-family:'DM Mono',monospace;font-size:0.82rem;">£5,136 → Apr</td>
+                <td><span class="badge badge-green">Published</span></td>
+              </tr>
+              <tr>
+                <td class="td-mono">Feb 2026</td>
+                <td><div style="display:flex;gap:4px;">
+                  <span style="background:var(--surface2);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">17</span>
+                  <span style="background:var(--surface2);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">08</span>
+                  <span style="background:var(--surface2);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">44</span>
+                  <span style="background:var(--surface2);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">22</span>
+                  <span style="background:var(--surface2);border-radius:4px;padding:2px 6px;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">31</span>
+                </div></td>
+                <td class="td-mono">0</td><td class="td-mono">1</td><td class="td-mono">9</td>
+                <td style="color:var(--muted);font-family:'DM Mono',monospace;font-size:0.82rem;">Rolled → Mar</td>
+                <td><span class="badge badge-green">Published</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── USERS ── -->
+  <div class="panel" id="panel-users">
+    <div class="topbar">
+      <div class="page-title">User Management</div>
+      <div class="topbar-right">
+        <input class="form-input" style="width:220px;" placeholder="🔍 Search users..." />
+        <button class="topbar-btn primary">+ Add User</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Email</th><th>Plan</th><th>Status</th><th>Charity %</th><th>Scores</th><th>Joined</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="usersTable">
+              <tr>
+                <td><strong>James Whitfield</strong></td>
+                <td class="td-mono">james@example.com</td>
+                <td class="td-mono">YEARLY</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td class="td-mono" style="color:var(--green)">15%</td>
+                <td class="td-mono">5/5</td>
+                <td class="td-mono">Apr 2025</td>
+                <td><button class="action-btn edit" onclick="editUser('James Whitfield')">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Priya Sharma</strong></td>
+                <td class="td-mono">priya@example.com</td>
+                <td class="td-mono">MONTHLY</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td class="td-mono" style="color:var(--green)">10%</td>
+                <td class="td-mono">3/5</td>
+                <td class="td-mono">Jan 2026</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Conor MacLeod</strong></td>
+                <td class="td-mono">conor@example.com</td>
+                <td class="td-mono">YEARLY</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td class="td-mono" style="color:var(--green)">20%</td>
+                <td class="td-mono">5/5</td>
+                <td class="td-mono">Jun 2025</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Helen Forsyth</strong></td>
+                <td class="td-mono">helen@example.com</td>
+                <td class="td-mono">MONTHLY</td>
+                <td><span class="badge badge-muted">Lapsed</span></td>
+                <td class="td-mono">10%</td>
+                <td class="td-mono">2/5</td>
+                <td class="td-mono">Sep 2025</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Raj Patel</strong></td>
+                <td class="td-mono">raj@example.com</td>
+                <td class="td-mono">MONTHLY</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td class="td-mono" style="color:var(--green)">12%</td>
+                <td class="td-mono">5/5</td>
+                <td class="td-mono">Nov 2025</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Sophie Drummond</strong></td>
+                <td class="td-mono">sophie@example.com</td>
+                <td class="td-mono">YEARLY</td>
+                <td><span class="badge badge-gold">Cancelling</span></td>
+                <td class="td-mono">10%</td>
+                <td class="td-mono">4/5</td>
+                <td class="td-mono">Feb 2026</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUBSCRIPTIONS ── -->
+  <div class="panel" id="panel-subscriptions">
+    <div class="topbar">
+      <div class="page-title">Subscription Management</div>
+      <div class="topbar-right">
+        <button class="topbar-btn">Export CSV</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-card-label">Active Monthly</div><div class="stat-card-num blue">1,104</div></div>
+        <div class="stat-card"><div class="stat-card-label">Active Yearly</div><div class="stat-card-num green">1,314</div></div>
+        <div class="stat-card"><div class="stat-card-label">Lapsed</div><div class="stat-card-num red">87</div></div>
+        <div class="stat-card"><div class="stat-card-label">Cancelling</div><div class="stat-card-num gold">23</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">All Subscriptions</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Plan</th><th>Amount</th><th>Status</th><th>Next Bill</th><th>Stripe ID</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              <tr><td>James Whitfield</td><td class="td-mono">YEARLY</td><td class="td-mono">£99.00</td><td><span class="badge badge-green">Active</span></td><td class="td-mono">Apr 12 2026</td><td class="td-mono">sub_1Abc...</td><td><button class="action-btn edit">Manage</button></td></tr>
+              <tr><td>Priya Sharma</td><td class="td-mono">MONTHLY</td><td class="td-mono">£9.00</td><td><span class="badge badge-green">Active</span></td><td class="td-mono">Apr 21 2026</td><td class="td-mono">sub_2Bcd...</td><td><button class="action-btn edit">Manage</button></td></tr>
+              <tr><td>Helen Forsyth</td><td class="td-mono">MONTHLY</td><td class="td-mono">£9.00</td><td><span class="badge badge-muted">Lapsed</span></td><td class="td-mono">—</td><td class="td-mono">sub_3Efg...</td><td><button class="action-btn approve">Reactivate</button></td></tr>
+              <tr><td>Sophie Drummond</td><td class="td-mono">YEARLY</td><td class="td-mono">£99.00</td><td><span class="badge badge-gold">Cancelling</span></td><td class="td-mono">Apr 30 2026</td><td class="td-mono">sub_4Hij...</td><td><button class="action-btn edit">Manage</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCORES ── -->
+  <div class="panel" id="panel-scores">
+    <div class="topbar">
+      <div class="page-title">Score Management</div>
+      <div class="topbar-right">
+        <input class="form-input" style="width:200px;" placeholder="Search user..." />
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">User Score Records</div><div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);">Rolling 5 · Stableford · Range 1–45</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Score 1 (Latest)</th><th>Score 2</th><th>Score 3</th><th>Score 4</th><th>Score 5 (Oldest)</th><th>Average</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>James Whitfield</strong></td>
+                <td><span style="background:var(--green-dim);color:var(--green);padding:3px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:0.8rem;">36</span></td>
+                <td class="td-mono">29</td><td class="td-mono">33</td><td class="td-mono">25</td><td class="td-mono">39</td>
+                <td class="td-mono" style="color:var(--green)">32.4</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Priya Sharma</strong></td>
+                <td><span style="background:var(--green-dim);color:var(--green);padding:3px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:0.8rem;">28</span></td>
+                <td class="td-mono">31</td><td class="td-mono">—</td><td class="td-mono">—</td><td class="td-mono">—</td>
+                <td class="td-mono">29.5</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Conor MacLeod</strong></td>
+                <td><span style="background:var(--green-dim);color:var(--green);padding:3px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:0.8rem;">42</span></td>
+                <td class="td-mono">38</td><td class="td-mono">40</td><td class="td-mono">35</td><td class="td-mono">37</td>
+                <td class="td-mono" style="color:var(--green)">38.4</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+              <tr>
+                <td><strong>Raj Patel</strong></td>
+                <td><span style="background:var(--green-dim);color:var(--green);padding:3px 8px;border-radius:6px;font-family:'DM Mono',monospace;font-size:0.8rem;">22</span></td>
+                <td class="td-mono">18</td><td class="td-mono">25</td><td class="td-mono">20</td><td class="td-mono">19</td>
+                <td class="td-mono">20.8</td>
+                <td><button class="action-btn edit">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DRAW ENGINE ── -->
+  <div class="panel" id="panel-draw">
+    <div class="topbar">
+      <div class="page-title">Draw Engine</div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="simulateDraw()">▷ Simulate</button>
+        <button class="topbar-btn primary" onclick="publishDraw()">⚡ Publish Draw</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Draw Configuration</div></div>
+          <div class="card-body">
+            <div class="draw-config">
+              <div class="config-block">
+                <div class="config-block-label">Draw Logic</div>
+                <div class="radio-group">
+                  <label class="radio-option selected" onclick="selectRadio(this)">
+                    <input type="radio" name="logic" checked />
+                    <div class="radio-dot"></div>
+                    🎲 Random (Standard)
+                  </label>
+                  <label class="radio-option" onclick="selectRadio(this)">
+                    <input type="radio" name="logic" />
+                    <div class="radio-dot"></div>
+                    ⚖️ Weighted Algorithm
+                  </label>
+                </div>
+              </div>
+              <div class="config-block">
+                <div class="config-block-label">Draw Month</div>
+                <select class="form-input form-select" style="margin-bottom:10px;">
+                  <option>April 2026</option>
+                  <option selected>March 2026</option>
+                </select>
+                <div class="config-block-label" style="margin-top:10px;">Prize Pool</div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--gold);">£12,840</div>
+                <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">Incl. £5,136 jackpot rollover</div>
+              </div>
+            </div>
+
+            <div class="config-block-label" style="margin-bottom:8px;">Drawn Numbers</div>
+            <div class="draw-balls-row" id="adminBalls">
+              <div class="admin-ball" id="ab0">?</div>
+              <div class="admin-ball" id="ab1">?</div>
+              <div class="admin-ball" id="ab2">?</div>
+              <div class="admin-ball" id="ab3">?</div>
+              <div class="admin-ball" id="ab4">?</div>
+            </div>
+
+            <div class="config-block-label" style="margin-bottom:8px;">Simulation Log</div>
+            <div class="sim-log" id="simLog">
+              <span style="color:var(--muted);">→ Ready. Configure and run simulation above.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Prize Pool Breakdown</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:20px;">
+              <div class="analytics-bar-row">
+                <div class="analytics-bar-label" style="font-size:0.8rem;">5-Match</div>
+                <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:40%;background:var(--gold);"></div></div>
+                <div class="analytics-bar-val" style="color:var(--gold);">£5,136</div>
+              </div>
+              <div class="analytics-bar-row">
+                <div class="analytics-bar-label" style="font-size:0.8rem;">4-Match</div>
+                <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:35%;background:var(--green);"></div></div>
+                <div class="analytics-bar-val" style="color:var(--green);">£4,494</div>
+              </div>
+              <div class="analytics-bar-row">
+                <div class="analytics-bar-label" style="font-size:0.8rem;">3-Match</div>
+                <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:25%;background:var(--blue);"></div></div>
+                <div class="analytics-bar-val" style="color:var(--blue);">£3,210</div>
+              </div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:8px;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Active subscribers contributing</div>
+              <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;">2,418 <span style="font-size:0.8rem;font-weight:400;color:var(--muted);font-family:'DM Sans',sans-serif;">subscribers</span></div>
+              <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">Monthly: 1,104 × £9 · Yearly: 1,314 × £8.25/mo equiv.</div>
+            </div>
+            <div style="margin-top:14px;padding:12px 16px;background:rgba(240,192,64,0.08);border:1px solid rgba(240,192,64,0.2);border-radius:10px;">
+              <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:4px;">JACKPOT ROLLOVER ACTIVE</div>
+              <div style="font-size:0.8rem;color:var(--muted);">No 5-match winner in Mar 2026. £5,136 carries to April.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WINNERS ── -->
+  <div class="panel" id="panel-winners">
+    <div class="topbar">
+      <div class="page-title">Winner Verification</div>
+      <div class="topbar-right">
+        <button class="topbar-btn">Export Report</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-card-label">Pending Review</div><div class="stat-card-num red">3</div></div>
+        <div class="stat-card"><div class="stat-card-label">Approved (Unpaid)</div><div class="stat-card-num gold">1</div></div>
+        <div class="stat-card"><div class="stat-card-label">Paid Out (All Time)</div><div class="stat-card-num green">£18,420</div></div>
+      </div>
+
+      <div style="margin-bottom:16px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Awaiting Verification</div>
+
+      <div class="verify-card">
+        <div class="verify-avatar">JW</div>
+        <div class="verify-info">
+          <div class="verify-name">James Whitfield</div>
+          <div class="verify-meta">Mar 2026 Draw · 3-Match · Proof uploaded 22 Mar</div>
+          <div class="verify-scores">
+            <span class="verify-score-pill match">36 ✓</span>
+            <span class="verify-score-pill">12</span>
+            <span class="verify-score-pill match">29 ✓</span>
+            <span class="verify-score-pill">41</span>
+            <span class="verify-score-pill match">08 ✓</span>
+          </div>
+        </div>
+        <div class="verify-prize">£229</div>
+        <div class="verify-actions">
+          <button class="action-btn approve" onclick="verifyWinner(this,'approved')">✓ Approve</button>
+          <button class="action-btn reject" onclick="verifyWinner(this,'rejected')">✕ Reject</button>
+        </div>
+      </div>
+
+      <div class="verify-card">
+        <div class="verify-avatar">CM</div>
+        <div class="verify-info">
+          <div class="verify-name">Conor MacLeod</div>
+          <div class="verify-meta">Mar 2026 Draw · 4-Match · Proof uploaded 23 Mar</div>
+          <div class="verify-scores">
+            <span class="verify-score-pill match">42 ✓</span>
+            <span class="verify-score-pill match">08 ✓</span>
+            <span class="verify-score-pill">36</span>
+            <span class="verify-score-pill match">41 ✓</span>
+            <span class="verify-score-pill match">29 ✓</span>
+          </div>
+        </div>
+        <div class="verify-prize">£2,247</div>
+        <div class="verify-actions">
+          <button class="action-btn approve" onclick="verifyWinner(this,'approved')">✓ Approve</button>
+          <button class="action-btn reject" onclick="verifyWinner(this,'rejected')">✕ Reject</button>
+        </div>
+      </div>
+
+      <div class="verify-card">
+        <div class="verify-avatar">RP</div>
+        <div class="verify-info">
+          <div class="verify-name">Raj Patel</div>
+          <div class="verify-meta">Mar 2026 Draw · 3-Match · Proof uploaded 24 Mar</div>
+          <div class="verify-scores">
+            <span class="verify-score-pill">22</span>
+            <span class="verify-score-pill match">08 ✓</span>
+            <span class="verify-score-pill match">29 ✓</span>
+            <span class="verify-score-pill">41</span>
+            <span class="verify-score-pill match">36 ✓</span>
+          </div>
+        </div>
+        <div class="verify-prize">£229</div>
+        <div class="verify-actions">
+          <button class="action-btn approve" onclick="verifyWinner(this,'approved')">✓ Approve</button>
+          <button class="action-btn reject" onclick="verifyWinner(this,'rejected')">✕ Reject</button>
+        </div>
+      </div>
+
+      <div style="margin-top:28px;margin-bottom:16px;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Approved — Awaiting Payout</div>
+      <div class="verify-card" style="border-color:rgba(240,192,64,0.2);">
+        <div class="verify-avatar" style="background:linear-gradient(135deg,var(--gold-dim),var(--gold));">PS</div>
+        <div class="verify-info">
+          <div class="verify-name">Priya Sharma</div>
+          <div class="verify-meta">Feb 2026 Draw · 4-Match · Approved 15 Feb</div>
+          <div class="verify-scores">
+            <span class="verify-score-pill match">17 ✓</span>
+            <span class="verify-score-pill match">08 ✓</span>
+            <span class="verify-score-pill">31</span>
+            <span class="verify-score-pill match">22 ✓</span>
+            <span class="verify-score-pill match">28 ✓</span>
+          </div>
+        </div>
+        <div class="verify-prize">£1,960</div>
+        <div class="verify-actions">
+          <button class="action-btn pay" onclick="markPaid(this)">💸 Mark Paid</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CHARITIES ── -->
+  <div class="panel" id="panel-charities">
+    <div class="topbar">
+      <div class="page-title">Charity Management</div>
+      <div class="topbar-right">
+        <button class="topbar-btn primary" onclick="showAddCharity()">+ Add Charity</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="charity-grid">
+        <div class="charity-admin-card">
+          <div class="charity-card-top">
+            <div class="charity-emoji">🌿</div>
+            <span class="charity-status-pill badge-green badge">Active</span>
+          </div>
+          <div class="charity-admin-name">Trees for Cities</div>
+          <div class="charity-admin-desc">Urban tree planting improving city environments and communities.</div>
+          <div class="charity-admin-meta">
+            <div><div class="key">Subscribers</div><div class="val" style="color:var(--green)">412</div></div>
+            <div><div class="key">Raised</div><div class="val" style="color:var(--gold)">£14,200</div></div>
+            <div><div class="key">Featured</div><div class="val">✓ Yes</div></div>
+          </div>
+          <div class="charity-card-actions">
+            <button class="action-btn edit" style="flex:1">Edit</button>
+            <button class="action-btn reject">Remove</button>
+          </div>
+        </div>
+        <div class="charity-admin-card">
+          <div class="charity-card-top">
+            <div class="charity-emoji">🏥</div>
+            <span class="charity-status-pill badge-green badge">Active</span>
+          </div>
+          <div class="charity-admin-name">Golf for Health</div>
+          <div class="charity-admin-desc">Mental health and rehabilitation through golf therapy across the UK.</div>
+          <div class="charity-admin-meta">
+            <div><div class="key">Subscribers</div><div class="val" style="color:var(--green)">287</div></div>
+            <div><div class="key">Raised</div><div class="val" style="color:var(--gold)">£9,840</div></div>
+            <div><div class="key">Featured</div><div class="val" style="color:var(--muted)">No</div></div>
+          </div>
+          <div class="charity-card-actions">
+            <button class="action-btn edit" style="flex:1">Edit</button>
+            <button class="action-btn reject">Remove</button>
+          </div>
+        </div>
+        <div class="charity-admin-card">
+          <div class="charity-card-top">
+            <div class="charity-emoji">🎗️</div>
+            <span class="charity-status-pill badge-green badge">Active</span>
+          </div>
+          <div class="charity-admin-name">Caddie Foundation</div>
+          <div class="charity-admin-desc">Supporting families and children of golf caddies in low-income areas.</div>
+          <div class="charity-admin-meta">
+            <div><div class="key">Subscribers</div><div class="val" style="color:var(--green)">198</div></div>
+            <div><div class="key">Raised</div><div class="val" style="color:var(--gold)">£7,560</div></div>
+            <div><div class="key">Featured</div><div class="val" style="color:var(--muted)">No</div></div>
+          </div>
+          <div class="charity-card-actions">
+            <button class="action-btn edit" style="flex:1">Edit</button>
+            <button class="action-btn reject">Remove</button>
+          </div>
+        </div>
+        <div class="charity-admin-card" id="addCharityCard" style="display:none;border:1.5px dashed rgba(61,220,132,0.3);">
+          <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:16px;">New Charity</div>
+          <div class="form-row">
+            <label class="form-label">Charity Name</label>
+            <input class="form-input" placeholder="e.g. Water & Fairways" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Description</label>
+            <input class="form-input" placeholder="Short description..." />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Emoji Icon</label>
+            <input class="form-input" placeholder="🌍" style="font-size:1.3rem;" />
+          </div>
+          <div class="charity-card-actions" style="margin-top:8px;">
+            <button class="action-btn approve" style="flex:1" onclick="saveCharity()">Save Charity</button>
+            <button class="action-btn edit" onclick="hideAddCharity()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ANALYTICS ── -->
+  <div class="panel" id="panel-analytics">
+    <div class="topbar">
+      <div class="page-title">Reports & Analytics</div>
+      <div class="topbar-right">
+        <select class="form-input form-select" style="width:140px;">
+          <option>Last 30 days</option>
+          <option>Last 3 months</option>
+          <option selected>All time</option>
+        </select>
+        <button class="topbar-btn">Export</button>
+      </div>
+    </div>
+    <div style="padding:32px;">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-card-label">Total Revenue</div><div class="stat-card-num green">£178,400</div><div class="stat-card-trend trend-up">↑ 18% MoM</div></div>
+        <div class="stat-card"><div class="stat-card-label">Total Prizes Paid</div><div class="stat-card-num gold">£82,340</div><div class="stat-card-sub">Across 24 draws</div></div>
+        <div class="stat-card"><div class="stat-card-label">Total Charity</div><div class="stat-card-num blue">£48,220</div><div class="stat-card-trend trend-up">↑ 27% this year</div></div>
+        <div class="stat-card"><div class="stat-card-label">Avg Charity %</div><div class="stat-card-num">13.4%</div><div class="stat-card-sub">Above 10% minimum</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Subscriber Growth</div></div>
+          <div class="card-body">
+            <div style="display:flex;align-items:flex-end;gap:5px;height:120px;margin-bottom:10px;">
+              <div style="flex:1;background:var(--blue);opacity:0.3;border-radius:4px 4px 0 0;height:30%;"></div>
+              <div style="flex:1;background:var(--blue);opacity:0.4;border-radius:4px 4px 0 0;height:38%;"></div>
+              <div style="flex:1;background:var(--blue);opacity:0.5;border-radius:4px 4px 0 0;height:48%;"></div>
+              <div style="flex:1;background:var(--blue);opacity:0.55;border-radius:4px 4px 0 0;height:55%;"></div>
+              <div style="flex:1;background:var(--blue);opacity:0.6;border-radius:4px 4px 0 0;height:65%;"></div>
+              <div style="flex:1;background:var(--blue);opacity:0.7;border-radius:4px 4px 0 0;height:74%;"></div>
+              <div style="flex:1;background:var(--blue);opacity:0.8;border-radius:4px 4px 0 0;height:86%;"></div>
+              <div style="flex:1;background:var(--blue);border-radius:4px 4px 0 0;height:100%;box-shadow:0 0 16px rgba(92,159,255,0.3);"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);">
+              <span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span style="color:var(--blue)">Mar</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Charity Distribution</div></div>
+          <div class="card-body">
+            <div class="analytics-bar-row">
+              <div class="analytics-bar-label">Trees for Cities</div>
+              <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:42%;background:var(--green);"></div></div>
+              <div class="analytics-bar-val" style="color:var(--green);">£14.2k</div>
+            </div>
+            <div class="analytics-bar-row">
+              <div class="analytics-bar-label">Golf for Health</div>
+              <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:29%;background:var(--blue);"></div></div>
+              <div class="analytics-bar-val" style="color:var(--blue);">£9.8k</div>
+            </div>
+            <div class="analytics-bar-row">
+              <div class="analytics-bar-label">Caddie Found.</div>
+              <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:22%;background:var(--gold);"></div></div>
+              <div class="analytics-bar-val" style="color:var(--gold);">£7.6k</div>
+            </div>
+            <div class="analytics-bar-row">
+              <div class="analytics-bar-label">Water & Fairways</div>
+              <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:33%;background:var(--blue);opacity:0.6;"></div></div>
+              <div class="analytics-bar-val">£11.4k</div>
+            </div>
+            <div class="analytics-bar-row">
+              <div class="analytics-bar-label">Others</div>
+              <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:15%;background:var(--muted);opacity:0.5;"></div></div>
+              <div class="analytics-bar-val">£5.2k</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Draw Statistics</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Draw</th><th>5-Match Winners</th><th>4-Match Winners</th><th>3-Match Winners</th><th>Total Paid</th><th>Charity Generated</th><th>Jackpot Rolled</th></tr></thead>
+            <tbody>
+              <tr><td class="td-mono">Mar 2026</td><td class="td-mono" style="color:var(--muted);">0</td><td class="td-mono">2</td><td class="td-mono">14</td><td class="td-mono" style="color:var(--gold)">£7,704</td><td class="td-mono" style="color:var(--green)">£2,184</td><td><span class="badge badge-gold">Yes</span></td></tr>
+              <tr><td class="td-mono">Feb 2026</td><td class="td-mono" style="color:var(--muted);">0</td><td class="td-mono">1</td><td class="td-mono">9</td><td class="td-mono" style="color:var(--gold)">£6,102</td><td class="td-mono" style="color:var(--green)">£1,890</td><td><span class="badge badge-gold">Yes</span></td></tr>
+              <tr><td class="td-mono">Jan 2026</td><td class="td-mono" style="color:var(--green);">1</td><td class="td-mono">3</td><td class="td-mono">11</td><td class="td-mono" style="color:var(--gold)">£9,800</td><td class="td-mono" style="color:var(--green)">£1,760</td><td><span class="badge badge-muted">No</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  // Draw simulation
+  let drawRunning = false;
+  function simulateDraw() {
+    if (drawRunning) return;
+    drawRunning = true;
+    const log = document.getElementById('simLog');
+    const balls = [0,1,2,3,4].map(i => document.getElementById('ab'+i));
+    balls.forEach(b => { b.classList.remove('lit'); b.textContent = '?'; });
+    log.innerHTML = '<span class="log-line">→ Simulation started...</span>\n';
+
+    const logic = document.querySelector('.radio-option.selected').textContent.trim();
+    log.innerHTML += `<span class="log-line">→ Mode: ${logic}</span>\n`;
+
+    let drawn = [], i = 0;
+    const iv = setInterval(() => {
+      if (i === 5) {
+        clearInterval(iv);
+        log.innerHTML += `<span class="log-warn">→ Numbers drawn: [${drawn.join(', ')}]</span>\n`;
+        log.innerHTML += `<span class="log-line">→ Simulation complete. Review before publishing.</span>`;
+        log.scrollTop = log.scrollHeight;
+        drawRunning = false;
+        return;
+      }
+      let n;
+      do { n = Math.floor(Math.random()*45)+1; } while(drawn.includes(n));
+      drawn.push(n);
+      balls[i].textContent = n < 10 ? '0'+n : n;
+      balls[i].classList.add('lit');
+      log.innerHTML += `<span class="log-line">→ Ball ${i+1}: ${n}</span>\n`;
+      log.scrollTop = log.scrollHeight;
+      i++;
+    }, 600);
+  }
+
+  function publishDraw() {
+    const balls = [0,1,2,3,4].map(i => document.getElementById('ab'+i));
+    const nums = balls.map(b => b.textContent);
+    if (nums.includes('?')) { alert('Run simulation first before publishing.'); return; }
+    if (confirm(`Publish draw with numbers: ${nums.join(', ')}?\n\nThis will notify all subscribers.`)) {
+      document.getElementById('simLog').innerHTML += '<span style="color:var(--gold)">★ DRAW PUBLISHED SUCCESSFULLY</span>';
+    }
+  }
+
+  function selectRadio(el) {
+    document.querySelectorAll('.radio-option').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function verifyWinner(btn, action) {
+    const card = btn.closest('.verify-card');
+    const name = card.querySelector('.verify-name').textContent;
+    if (action === 'approved') {
+      card.style.borderColor = 'rgba(61,220,132,0.4)';
+      card.querySelector('.verify-actions').innerHTML = '<span class="badge badge-green">Approved ✓</span> <button class="action-btn pay" onclick="markPaid(this)">💸 Mark Paid</button>';
+    } else {
+      card.style.opacity = '0.4';
+      card.querySelector('.verify-actions').innerHTML = '<span class="badge badge-red">Rejected</span>';
+    }
+    // Update badge
+    const badge = document.querySelector('.nav-item .badge');
+    if (badge) { const n = parseInt(badge.textContent)-1; badge.textContent = n; if(n===0) badge.remove(); }
+  }
+
+  function markPaid(btn) {
+    const card = btn.closest('.verify-card');
+    card.style.opacity = '0.5';
+    btn.textContent = 'Paid ✓';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+  }
+
+  function editUser(name) { alert(`Edit user: ${name}\n(In full build → opens user edit modal)`); }
+
+  function showAddCharity() { document.getElementById('addCharityCard').style.display = 'block'; }
+  function hideAddCharity() { document.getElementById('addCharityCard').style.display = 'none'; }
+  function saveCharity() {
+    alert('Charity saved! (In full build → persisted to Supabase)');
+    hideAddCharity();
+  }
+</script>
+</body>
+</html>
